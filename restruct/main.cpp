@@ -1,178 +1,94 @@
 #include <iostream>
 #include <fstream>
 
-#include <vector>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 
 #include <restruct/restruct.hpp>
 
-class RealizedNode;
-class StructNode;
-
-class RealizedNode {
-public:
-  RealizedNode(StructNode* structNode_, RealizedNode* parent_,
-               std::istream& instream_);
-
-  RealizedNode* getParent() {
-    return this->parent;
-  }
-
-  StructNode* getStructNode() {
-    return this->structNode;
-  }
-
-  void addChild(RealizedNode* node) {
-    this->children.push_back(node);
-  }
-
-private:
-  StructNode* structNode;
-  RealizedNode* parent;
-  std::istream& instream;
-  std::streampos streamBeginOffset;
-
-  std::vector<RealizedNode*> children;
-};
-
-//////////////////////////////////////////
-
-class StructNodeLeaf;
-class StructNodeGroup;
-
-class StructNode {
-public:
-  StructNode(StructNodeGroup* parent_, std::string name_);
-
-  StructNodeGroup* getParent() {
-    return this->parent;
-  }
-
-  virtual unsigned int getNumChildren()=0;
-
-  virtual StructNode* getChild(unsigned int index)=0;
-
-  virtual RealizedNode* parseStream(std::istream& instream,
-                                    RealizedNode* parent=nullptr) {
-    return new RealizedNode(this, parent, instream);
-  }
-
-  std::string getName() {
-    return this->name;
-  }
-
-protected:
-  std::string name;
-  StructNodeGroup* parent;
-};
-
-class StructNodeGroup : public StructNode {
-public:
-  StructNodeGroup(StructNodeGroup* parent_, std::string name_) :
-    StructNode(parent_, name_) {
-
-  }
-
-  virtual unsigned int getNumChildren() {
-    return this->children.size();
-  }
-
-  virtual StructNode* getChild(unsigned int index) {
-    if(index >= this->children.size()) return nullptr;
-    return this->children[index];
-  }
-
-  void addChild(StructNode* node) {
-    this->children.push_back(node);
-  }
-
-  virtual RealizedNode* parseStream(std::istream& instream,
-                                    RealizedNode* parent=nullptr) {
-    RealizedNode* node = StructNode::parseStream(instream, parent);
-    this->realizeChildren(instream, node);
-    return node;
-  }
-
-private:
-  void realizeChildren(std::istream& instream, RealizedNode* currNode) {
-    for(auto it = children.begin(); it != children.end(); ++it) {
-      (*it)->parseStream(instream, currNode);
-    }
-  }
-
-private:
-  std::vector<StructNode*> children;
-};
-
-
-StructNode::StructNode(StructNodeGroup* parent_, std::string name_) :
-  parent(parent_), name(name_) {
-  if(this->parent)
-    this->parent->addChild(this);
+StructNode* int__StructConstructor(std::string name, StructNodeRegistry* registry) {
+  LuaScript* toString = new LuaScript(registry,
+                                      //"return 'an int'");
+  "return string.format('%d', nodeval) .. '<uint32>'");
+  LuaScript* read = new LuaScript(registry, "return restruct.readuint32(rs)");
+  return new StructNodeLeaf(registry, name, toString, read);
 }
 
-
-class StructNodeLeaf : public StructNode {
-public:
-  StructNodeLeaf(StructNodeGroup* parent_, std::string name_) :
-    StructNode(parent_, name_) {
-
-  }
-
-  virtual unsigned int getNumChildren() {
-    return 0;
-  }
-
-  virtual StructNode* getChild(unsigned int index) {
-    return nullptr;
-  }
-};
-
-/////////////////////////////////////////////////
-
-RealizedNode::RealizedNode(StructNode* structNode_, RealizedNode* parent_,
-                           std::istream& instream_) :
-  structNode(structNode_), parent(parent_), instream(instream_) {
-  if(this->parent)
-    this->parent->addChild(this);
-  this->streamBeginOffset = this->instream.tellg();
-  std::cout << "Realizing Node for " << this->structNode->getName() << std::endl;
+StructNode* rawStr__StructConstructor(std::string name,
+                                      StructNodeRegistry* registry) {
+  LuaScript* toString = new LuaScript(registry, "return 'DERP<rawStr>'");
+  LuaScript* read = new LuaScript(registry, "return restruct.readString(rs, 3)");
+  return new StructNodeLeaf(registry, name, toString, read);
 }
 
-///////////////////////////////////////////////////
+StructNode* lenStr__StructConstructor(std::string name,
+                                      StructNodeRegistry* registry) {
+  LuaScript* toString = new LuaScript(registry, "return 'DERP<lenstr>'");
+  auto ret = new StructNodeGroup(registry, name, toString);
+  ret->addChild("<int>", "length");
+  ret->addChild("<rawstr>", "content");
+  return ret;
+}
+
+StructNode* lenStr__TLTEST(std::string name,
+                           StructNodeRegistry* registry) {
+  LuaScript* toString = nullptr;//new LuaScript(registry, "return '<TLTEST>'");
+  auto ret = new StructNodeGroup(registry, name, 0);//toString);
+  ret->addChild("<int>", "length1");
+  ret->addChild("<int>", "length2");
+  return ret;
+}
+
+void printRealizedNodes(RealizedNode* node, int depth=0) {
+  for(int i = 0; i < depth; i++) std::cout << "  ";
+  std::cout << node->getName() << ": " << node->getValueAsString() << std::endl;
+  for(int i = 0; i < node->getNumChildren(); i++)
+    printRealizedNodes(node->getChild(i), depth+1);
+}
 
 int main(int argc, char** argv) {
-  std::cout << "Hello" << std::endl;
-  restruct_main(argc, argv);
+  //restruct_main(argc, argv);
 
   std::ifstream myFile("test.bin", std::ios::in | std::ios::binary);
 
-  StructNodeGroup sRoot{nullptr, "ROOT"};
-  StructNodeGroup sNames{&sRoot, "NAMES"};
-  StructNodeLeaf  sNames_Len{&sNames, "NAMES LEN"};
-  StructNodeGroup sNames_Entries{&sNames, "NAMES_ENTRIES"}; // FOR
-  StructNodeGroup sStringComp{&sNames_Entries, "STRINGCOMP"};
-  StructNodeLeaf  sString_Len{&sStringComp, "STR_LEN"};
-  StructNodeLeaf  sString_Cstr{&sStringComp, "STR_CSTR"};
+  StructNodeRegistry nodeRegistry{};
+  nodeRegistry.registerType("<int>",    &int__StructConstructor);
+  nodeRegistry.registerType("<rawstr>", &rawStr__StructConstructor);
+  nodeRegistry.registerType("<lenstr>", &lenStr__StructConstructor);
+  nodeRegistry.registerType("<TLTEST>", &lenStr__TLTEST);
 
-  RealizedNode *rRoot = sRoot.parseStream(myFile);
+  auto sRoot = nodeRegistry.getNodeTypeByName("<TLTEST>");
+
+  RealizedNode *rRoot = sRoot->parseStream(myFile, "ROOT");
+  //rRoot->getChild(0)->getValueAsString();
+
+
+  printRealizedNodes(rRoot);
+
+
+  int s1 = nodeRegistry.registerScript("\
+function test(a, b)\n\
+  io.write(string.format('SCRIPT SAYS: %d, %d\\n\\n\\n', a, b))\n\
+  return 1337\n\
+end\n\
+test(...)\n\
+");
+
+  lua_pushinteger(nodeRegistry.L, s1);  /* push address */
+  lua_gettable(nodeRegistry.L, LUA_REGISTRYINDEX); // ToS = chunk to run
+  lua_pushinteger(nodeRegistry.L, 45);  /* push arg0 */
+  lua_pushinteger(nodeRegistry.L, 1337);  /* push arg1 */
+  if (lua_pcall(nodeRegistry.L, 2, LUA_MULTRET, 0)) {
+      fprintf(stderr, "Failed to run script: %s\n",
+              lua_tostring(nodeRegistry.L, -1));
+      exit(1);
+  }
+  int32_t ret = lua_tointeger(nodeRegistry.L, -1);
+  printf("Script returned: 0x%x, %d\n", ret, ret);
+  lua_pop(nodeRegistry.L, 1);  /* Take the returned value out of the stack */
 
   delete rRoot;
 
-  //int count;
-  //myFile.read(reinterpret_cast<char*>(&count), sizeof(int));
-  //std::cout << "Count: " << count << "; tell: " << myFile.tellg() << std::endl;
-
-  //for(int i = 0; i < count; i++) {
-  //  int strlen;
-  //  myFile.read(reinterpret_cast<char*>(&strlen), sizeof(int));
-  //  if(strlen) {
-  //    char *s = new char[strlen];
-  //    myFile.read(s, strlen);
-  //    std::cout << "\"" << s << "\"; len: " << strlen << std::endl;
-  //    delete[] s;
-  //  } else {
-  //    std::cout << "\"\"; len: 0" << std::endl;
-  //  }
-  //}
   return 0;
 }

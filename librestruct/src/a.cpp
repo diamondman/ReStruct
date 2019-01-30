@@ -79,7 +79,8 @@
 //
 //    return 0;
 //}
-
+#include <stdio.h>
+#include <stdint.h>
 int luamain(void)
 {
     int status, result, i;
@@ -112,37 +113,48 @@ int luamain(void)
 
     lua_pushlightuserdata(L, (void *)&S1key);  /* push address */
     lua_gettable(L, LUA_REGISTRYINDEX);
+
+    uint8_t x = -2;
+    printf("C: 0x%02x\n", x);
+    lua_pushinteger(L, x);
+    lua_setglobal(L, "x");
+
+    const unsigned char y[] = {0x10, 0x40, 0x51, 0x00, 0x12, 0xff, 0x11};
+    //printf("C: 0x%02x\n", a);
+    lua_pushlstring(L, (const char *)y, sizeof(y));
+    lua_setglobal(L, "y");
+
     if (lua_pcall(L, 0, LUA_MULTRET, 0)) {
         fprintf(stderr, "Failed to run script: %s\n", lua_tostring(L, -1));
         exit(1);
     }
-    sum = lua_tonumber(L, -1);
-    printf("Script returned: %.0f\n", sum);
+    int8_t ret = lua_tointeger(L, -1);
+    printf("Script returned: 0x%x, %d\n", ret, ret);
     lua_pop(L, 1);  /* Take the returned value out of the stack */
 
 
 
-    lua_pushlightuserdata(L, (void *)&S2key);  /* push address */
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    if (lua_pcall(L, 0, LUA_MULTRET, 0)) {
-        fprintf(stderr, "Failed to run script: %s\n", lua_tostring(L, -1));
-        exit(1);
-    }
-    sum = lua_tonumber(L, -1);
-    printf("Script returned: %.0f\n", sum);
-    lua_pop(L, 1);  /* Take the returned value out of the stack */
-
-
-
-    lua_pushlightuserdata(L, (void *)&S1key);  /* push address */
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    if (lua_pcall(L, 0, LUA_MULTRET, 0)) {
-        fprintf(stderr, "Failed to run script: %s\n", lua_tostring(L, -1));
-        exit(1);
-    }
-    sum = lua_tonumber(L, -1);
-    printf("Script returned: %.0f\n", sum);
-    lua_pop(L, 1);  /* Take the returned value out of the stack */
+    //lua_pushlightuserdata(L, (void *)&S2key);  /* push address */
+    //lua_gettable(L, LUA_REGISTRYINDEX);
+    //if (lua_pcall(L, 0, LUA_MULTRET, 0)) {
+    //    fprintf(stderr, "Failed to run script: %s\n", lua_tostring(L, -1));
+    //    exit(1);
+    //}
+    //sum = lua_tonumber(L, -1);
+    //printf("Script returned: %.0f\n", sum);
+    //lua_pop(L, 1);  /* Take the returned value out of the stack */
+    //
+    //
+    //
+    //lua_pushlightuserdata(L, (void *)&S1key);  /* push address */
+    //lua_gettable(L, LUA_REGISTRYINDEX);
+    //if (lua_pcall(L, 0, LUA_MULTRET, 0)) {
+    //    fprintf(stderr, "Failed to run script: %s\n", lua_tostring(L, -1));
+    //    exit(1);
+    //}
+    //sum = lua_tonumber(L, -1);
+    //printf("Script returned: %.0f\n", sum);
+    //lua_pop(L, 1);  /* Take the returned value out of the stack */
 
 
 
@@ -154,4 +166,11 @@ int luamain(void)
 int restruct_main(int argc, char** argv) {
   luamain();
   return 0;
+}
+
+#include <math.h>
+static int l_sin (lua_State *L) {
+  double d = lua_tonumber(L, 1);  /* get argument */
+  lua_pushnumber(L, sin(d));  /* push result */
+  return 1;  /* number of results */
 }

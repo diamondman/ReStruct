@@ -5,17 +5,25 @@ find_package(Lua 5.3 REQUIRED)
 
 add_library(RESTRUCT SHARED
   src/a.cpp
+  src/LuaScript.cpp
+  src/RealizedNode.cpp
+  src/StructNode.cpp
+  src/StructNodeLeaf.cpp
+  src/StructNodeGroup.cpp
+  src/StructNodeRegistry.cpp
   )
 
 target_include_directories(RESTRUCT
   PUBLIC inc
-  PRIVATE
+  #PRIVATE
+  PUBLIC
     src
     ${LUA_INCLUDE_DIR}
   )
 
 target_link_libraries(RESTRUCT
-  PRIVATE
+  #PRIVATE
+  PUBLIC
     ${LUA_LIBRARIES}
     nlohmann_json::nlohmann_json
     m
