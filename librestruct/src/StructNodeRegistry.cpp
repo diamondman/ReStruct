@@ -175,3 +175,7 @@ int StructNodeRegistry::registerScript(std::string src) {
   }
   return luaL_ref(L, LUA_REGISTRYINDEX);
 }
+
+void StructNodeRegistry::unRegisterScript(int id) {
+  luaL_unref(L, LUA_REGISTRYINDEX, id);
+}

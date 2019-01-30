@@ -18,7 +18,7 @@ RealizedNode::RealizedNode(std::shared_ptr<StructNode> structNode_,
 }
 
 RealizedNode::~RealizedNode() {
-  std::cout << "******RealizedNode DEALLOCATING" << std::endl;
+  std::cout << "******RealizedNode DEALLOCATING " << this->nodeName << std::endl;
 }
 
 std::string RealizedNode::getValueAsString() {

@@ -17,29 +17,39 @@ StructNode* int__StructConstructor(std::string name, StructNodeRegistry* registr
 
 StructNode* rawStr__StructConstructor(std::string name,
                                       StructNodeRegistry* registry) {
-  LuaScript* toString = new LuaScript(registry, "return 'DERP<rawStr>'");
+  LuaScript* toString = new LuaScript(registry, "return nodeval .. '<rawStr>'");
   LuaScript* read = new LuaScript(registry, "return restruct.readString(rs, 3)");
   return new StructNodeLeaf(registry, name, toString, read);
 }
 
 StructNode* lenStr__StructConstructor(std::string name,
                                       StructNodeRegistry* registry) {
-  LuaScript* toString = new LuaScript(registry, "return 'DERP<lenstr>'");
+  LuaScript* toString = new LuaScript(registry, "\
+local children = restruct.getChildrenValues(rs)\n\
+return string.format('(\"%s\"; Len %d)<lenStr>', children.content, children.length)");
   auto ret = new StructNodeGroup(registry, name, toString);
   ret->addChild("<int>", "length");
   ret->addChild("<rawstr>", "content");
   return ret;
 }
 
-StructNode* lenStr__TLTEST(std::string name,
+StructNode* lenStrList__StructConstructor(std::string name,
+                           StructNodeRegistry* registry) {
+  LuaScript* toString = new LuaScript(registry, "return '(1 string)<>'");
+  auto ret = new StructNodeGroup(registry, name, toString);
+  ret->addChild("<lenstr>", "string0");
+  ret->addChild("<lenstr>", "string1");
+  return ret;
+}
+
+StructNode* TLTEST__StructConstructor(std::string name,
                            StructNodeRegistry* registry) {
   LuaScript* toString = new LuaScript(registry, "\
 local children = restruct.getChildrenValues(rs)\n\
-return string.format('(%d, %d)<TLTEST>', children.length1, children.length2)\
-");
+return string.format('(%d strings)<TLTEST>', children.length)");
   auto ret = new StructNodeGroup(registry, name, toString);
-  ret->addChild("<int>", "length1");
-  ret->addChild("<int>", "length2");
+  ret->addChild("<int>", "length");
+  ret->addChild("<lenStrList>", "strings");
   return ret;
 }
 
@@ -52,7 +62,8 @@ int main(int argc, char** argv) {
   nodeRegistry.registerType("<int>",    &int__StructConstructor);
   nodeRegistry.registerType("<rawstr>", &rawStr__StructConstructor);
   nodeRegistry.registerType("<lenstr>", &lenStr__StructConstructor);
-  nodeRegistry.registerType("<TLTEST>", &lenStr__TLTEST);
+  nodeRegistry.registerType("<lenStrList>", &lenStrList__StructConstructor);
+  nodeRegistry.registerType("<TLTEST>", &TLTEST__StructConstructor);
 
   auto sRoot = nodeRegistry.getNodeTypeByName("<TLTEST>");
 

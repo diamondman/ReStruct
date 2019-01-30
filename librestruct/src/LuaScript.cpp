@@ -14,6 +14,7 @@ LuaScript::LuaScript(StructNodeRegistry* registry_, std::string src)
 
 LuaScript::~LuaScript() {
   std::cout << "******LUA SCRIPT DEALLOCATING" << std::endl;
+  this->registry->unRegisterScript(this->scriptID);
 }
 
 
