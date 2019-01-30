@@ -5,13 +5,31 @@
 
 #include <restruct/restruct.hpp>
 
-#include <math.h>
-static int l_sin (lua_State *L) {
-  double d = luaL_checknumber(L, 1);
-  lua_pushnumber(L, sin(d));  /* push result */
-  return 1;  /* number of results */
-}
 
+
+static const luaL_Reg loadedlibs[] = {
+  {"_G", luaopen_base},
+  //{LUA_LOADLIBNAME, luaopen_package},
+  //{LUA_COLIBNAME, luaopen_coroutine},
+  {LUA_TABLIBNAME, luaopen_table},
+  //{LUA_IOLIBNAME, luaopen_io},
+  //{LUA_OSLIBNAME, luaopen_os},
+  {LUA_STRLIBNAME, luaopen_string},
+  {LUA_MATHLIBNAME, luaopen_math},
+  {LUA_UTF8LIBNAME, luaopen_utf8},
+  //{LUA_DBLIBNAME, luaopen_debug},
+  {NULL, NULL}
+};
+
+
+LUALIB_API void restruct_openlibs (lua_State *L) {
+  const luaL_Reg *lib;
+  /* "require" functions from 'loadedlibs' and set results to global table */
+  for (lib = loadedlibs; lib->func; lib++) {
+    luaL_requiref(L, lib->name, lib->func, 1);
+    lua_pop(L, 1);  /* remove lib */
+  }
+}
 
 static int RealizedNode_readString (lua_State *L) {
   RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
@@ -46,10 +64,18 @@ static const struct luaL_reg restructLib [] = {
 
 StructNodeRegistry::StructNodeRegistry() {
   L = luaL_newstate();
-  luaL_openlibs(L); /* Load Lua libraries */
+  restruct_openlibs(L); /* Load Lua libraries */
 
-  lua_pushcfunction(L, l_sin);
-  lua_setglobal(L, "mysin");
+  if (luaL_loadstring(L, "for k,v in pairs(_G) do\n"
+                         "  print('Global key', k, 'value', v)\n"
+                         "end")) {
+    fprintf(stderr, "Couldn't load source: %s\n", lua_tostring(L, -1));
+    exit(1);
+  }
+  if (lua_pcall(L, 0, 0, 0)) {
+      fprintf(stderr, "Failed to run script: %s\n", lua_tostring(L, -1));
+      exit(1);
+  }
 
   lua_newtable(L);
   luaL_setfuncs(L, restructLib, 0);

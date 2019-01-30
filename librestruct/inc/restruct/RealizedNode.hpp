@@ -42,6 +42,8 @@ public:
 
   std::string getValueAsString();
 
+  void dumpTree(int depth=0);
+
 private:
   std::shared_ptr<StructNode> structNode;
   RealizedNode* parent;

@@ -70,7 +70,6 @@ void LuaScript::call(int* resultID) {
 #include <stdio.h>
 std::string LuaScript::calls(RealizedNode* node, int luaResultID) {
   //std::cout << "CALLS! Stack top: " << lua_gettop(this->registry->L) << std::endl;
-  //std::cout << "DICKS1" << std::endl;
   this->pushRealizedNode("rs", node);
   //std::cout << "luaResultID: " << luaResultID << std::endl;
   //lua_pushinteger(this->registry->L, luaResultID);
@@ -82,13 +81,11 @@ std::string LuaScript::calls(RealizedNode* node, int luaResultID) {
 
   lua_pushinteger(this->registry->L, this->scriptID);  /* push address */
   lua_gettable(this->registry->L, LUA_REGISTRYINDEX); // ToS = chunk to run
-  ////std::cout << "DICKS4" << std::endl;
   if (lua_pcall(this->registry->L, 0, 1, 0)) {
       fprintf(stderr, "Failed to run script: %s\n",
               lua_tostring(this->registry->L, -1));
       exit(1);
   }
-  ////std::cout << "DICKS" << std::endl;
   std::string ret(lua_tostring(this->registry->L, 1));
   lua_pop(this->registry->L, 1);  /* Take the returned value out of the stack */
   return ret;

@@ -9,8 +9,8 @@
 
 StructNode* int__StructConstructor(std::string name, StructNodeRegistry* registry) {
   LuaScript* toString = new LuaScript(registry,
-                                      //"return 'an int'");
-  "return string.format('%d', nodeval) .. '<uint32>'");
+                       "return string.format('%d<uint32>', nodeval)");
+
   LuaScript* read = new LuaScript(registry, "return restruct.readuint32(rs)");
   return new StructNodeLeaf(registry, name, toString, read);
 }
@@ -33,18 +33,11 @@ StructNode* lenStr__StructConstructor(std::string name,
 
 StructNode* lenStr__TLTEST(std::string name,
                            StructNodeRegistry* registry) {
-  LuaScript* toString = nullptr;//new LuaScript(registry, "return '<TLTEST>'");
-  auto ret = new StructNodeGroup(registry, name, 0);//toString);
+  LuaScript* toString = new LuaScript(registry, "return '<TLTEST>'");
+  auto ret = new StructNodeGroup(registry, name, toString);
   ret->addChild("<int>", "length1");
   ret->addChild("<int>", "length2");
   return ret;
-}
-
-void printRealizedNodes(RealizedNode* node, int depth=0) {
-  for(int i = 0; i < depth; i++) std::cout << "  ";
-  std::cout << node->getName() << ": " << node->getValueAsString() << std::endl;
-  for(int i = 0; i < node->getNumChildren(); i++)
-    printRealizedNodes(node->getChild(i), depth+1);
 }
 
 int main(int argc, char** argv) {
@@ -63,13 +56,12 @@ int main(int argc, char** argv) {
   RealizedNode *rRoot = sRoot->parseStream(myFile, "ROOT");
   //rRoot->getChild(0)->getValueAsString();
 
-
-  printRealizedNodes(rRoot);
+  rRoot->dumpTree();
 
 
   int s1 = nodeRegistry.registerScript("\
 function test(a, b)\n\
-  io.write(string.format('SCRIPT SAYS: %d, %d\\n\\n\\n', a, b))\n\
+  print(string.format('SCRIPT SAYS: %d, %d\\n\\n\\n', a, b))\n\
   return 1337\n\
 end\n\
 test(...)\n\

@@ -27,3 +27,10 @@ std::string RealizedNode::getValueAsString() {
     return this->structNode->toStringScript->calls(this, this->luaResultID);
   return "...";
 }
+
+void RealizedNode::dumpTree(int depth) {
+  for(int i = 0; i < depth; i++) std::cout << "  ";
+  std::cout << this->getName() << ": " << this->getValueAsString() << std::endl;
+  for(auto child : this->children)
+    child->dumpTree(depth+1);
+}
