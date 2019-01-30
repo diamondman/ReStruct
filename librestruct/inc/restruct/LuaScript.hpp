@@ -20,6 +20,8 @@ public:
 
   void call(int* resultID);
 
+  void calls_luares(RealizedNode* node, int luaResultID);
+
   std::string calls(RealizedNode* node, int luaResultID);
 
 private:

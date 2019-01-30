@@ -33,7 +33,10 @@ StructNode* lenStr__StructConstructor(std::string name,
 
 StructNode* lenStr__TLTEST(std::string name,
                            StructNodeRegistry* registry) {
-  LuaScript* toString = new LuaScript(registry, "return '<TLTEST>'");
+  LuaScript* toString = new LuaScript(registry, "\
+local children = restruct.getChildrenValues(rs)\n\
+return string.format('(%d, %d)<TLTEST>', children.length1, children.length2)\
+");
   auto ret = new StructNodeGroup(registry, name, toString);
   ret->addChild("<int>", "length1");
   ret->addChild("<int>", "length2");

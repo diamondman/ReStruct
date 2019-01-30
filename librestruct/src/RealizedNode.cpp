@@ -22,10 +22,9 @@ RealizedNode::~RealizedNode() {
 }
 
 std::string RealizedNode::getValueAsString() {
-  if(this->structNode->toStringScript)
-    //this->structNode->toStringScript->call(&this->luaResultID);
-    return this->structNode->toStringScript->calls(this, this->luaResultID);
-  return "...";
+  if(!this->structNode->toStringScript)
+    return "...";
+  return this->structNode->toStringScript->calls(this, this->luaResultID);
 }
 
 void RealizedNode::dumpTree(int depth) {

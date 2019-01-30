@@ -54,10 +54,50 @@ static int RealizedNode_readuint32 (lua_State *L) {
   return 1;  /* number of results */
 }
 
+static int RealizedNode_getChildrenStrings (lua_State *L) {
+  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
+  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+
+  lua_createtable(L, 0, rNode->getNumChildren());
+  for(int i = 0; i < rNode->getNumChildren(); i++) {
+    auto child = rNode->getChild(i);
+    lua_pushstring(L, child->getName().c_str());
+    if(child->getStructNode()->toStringScript) {
+      child->getStructNode()->toStringScript->calls_luares(child,
+                                                           child->luaResultID);
+    } else {
+      lua_pushnil(L);
+    }
+    lua_settable(L, -3);
+  }
+  return 1;  /* number of results */
+}
+
+static int RealizedNode_getChildrenValues (lua_State *L) {
+  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
+  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+
+  lua_createtable(L, 0, rNode->getNumChildren());
+  for(int i = 0; i < rNode->getNumChildren(); i++) {
+    auto child = rNode->getChild(i);
+    lua_pushstring(L, child->getName().c_str());
+    if(child->luaResultID) {
+      lua_pushinteger(L, child->luaResultID);
+      lua_gettable(L, LUA_REGISTRYINDEX);
+    } else {
+      lua_pushnil(L);
+    }
+    lua_settable(L, -3);
+  }
+  return 1;  /* number of results */
+}
+
 #define luaL_reg      luaL_Reg
 static const struct luaL_reg restructLib [] = {
   {"readString", RealizedNode_readString},
   {"readuint32", RealizedNode_readuint32},
+  {"getChildrenStrings", RealizedNode_getChildrenStrings},
+  {"getChildrenValues", RealizedNode_getChildrenValues},
   {NULL, NULL}
 };
 
