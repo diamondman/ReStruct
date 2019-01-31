@@ -27,9 +27,10 @@ public:
 
   //virtual std::shared_ptr<StructNode> getChild(unsigned int index)=0;
 
-  virtual RealizedNode* parseStream(std::istream& instream,
-                                    std::string nodeName,
-                                    RealizedNode* parent=nullptr);
+  virtual std::shared_ptr<RealizedNode>
+  parseStream(std::istream& instream,
+              std::string nodeName,
+              std::shared_ptr<RealizedNode> parent=nullptr);
 
   std::string getName() {
     return this->name;

@@ -15,9 +15,10 @@ public:
     return 0;
   }
 
-  virtual RealizedNode* parseStream(std::istream& instream,
-                                    std::string nodeName,
-                                    RealizedNode* parent);
+  virtual std::shared_ptr<RealizedNode>
+  parseStream(std::istream& instream,
+              std::string nodeName,
+              std::shared_ptr<RealizedNode> parent);
 
 private:
   LuaScript* readScript;

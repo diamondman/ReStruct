@@ -63,7 +63,7 @@ static int RealizedNode_getChildrenStrings (lua_State *L) {
     auto child = rNode->getChild(i);
     lua_pushstring(L, child->getName().c_str());
     if(child->getStructNode()->toStringScript) {
-      child->getStructNode()->toStringScript->calls_luares(child,
+      child->getStructNode()->toStringScript->calls_luares(child.get(),
                                                            child->luaResultID);
     } else {
       lua_pushnil(L);

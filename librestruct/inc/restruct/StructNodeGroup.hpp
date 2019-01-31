@@ -27,12 +27,14 @@ public:
 
   void addChild(std::string nodeTypeName, std::string nodeName);
 
-  virtual RealizedNode* parseStream(std::istream& instream,
-                                    std::string nodeName,
-                                    RealizedNode* parent=nullptr);
+  virtual std::shared_ptr<RealizedNode>
+  parseStream(std::istream& instream,
+              std::string nodeName,
+              std::shared_ptr<RealizedNode> parent=nullptr);
 
 private:
-  void realizeChildren(std::istream& instream, RealizedNode* currNode);
+  void realizeChildren(std::istream& instream,
+                       std::shared_ptr<RealizedNode> currNode);
 
   // typename, nodename
   std::vector<std::pair<std::string, std::string>> childrenNames;

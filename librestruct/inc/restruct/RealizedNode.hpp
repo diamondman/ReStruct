@@ -7,16 +7,25 @@
 
 class StructNode;
 
-class RealizedNode {
-public:
+class RealizedNode : public std::enable_shared_from_this<RealizedNode> {
+private:
   RealizedNode(std::shared_ptr<StructNode> structNode_,
-               RealizedNode* parent_, std::string nodeName_,
+               std::shared_ptr<RealizedNode> parent_,
+               std::string nodeName_,
                std::istream& instream_);
+  void finishInit();
 
+public:
   ~RealizedNode();
 
-  RealizedNode* getParent() {
-    return this->parent;
+  static std::shared_ptr<RealizedNode>
+  create(std::shared_ptr<StructNode> structNode_,
+         std::shared_ptr<RealizedNode> parent_,
+         std::string nodeName_,
+         std::istream& instream_);
+
+  std::shared_ptr<RealizedNode> getParent() {
+    return this->parent.lock();
   }
 
   std::shared_ptr<StructNode> getStructNode() {
@@ -27,7 +36,7 @@ public:
     return this->nodeName;
   }
 
-  void addChild(RealizedNode* node) {
+  void addChild(std::shared_ptr<RealizedNode> node) {
     this->children.push_back(node);
   }
 
@@ -35,7 +44,7 @@ public:
     return this->children.size();
   }
 
-  RealizedNode* getChild(unsigned int index) {
+  std::shared_ptr<RealizedNode> getChild(unsigned int index) {
     if(index >= this->children.size()) return nullptr;
     return this->children[index];
   }
@@ -46,7 +55,7 @@ public:
 
 private:
   std::shared_ptr<StructNode> structNode;
-  RealizedNode* parent;
+  std::weak_ptr<RealizedNode> parent;
   std::string nodeName;
 public:
   std::istream& instream;
@@ -55,5 +64,5 @@ private:
   std::streampos streamBeginOffset;
   std::streampos tmpOffset;
 
-  std::vector<RealizedNode*> children;
+  std::vector<std::shared_ptr<RealizedNode>> children;
 };

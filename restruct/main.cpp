@@ -67,9 +67,7 @@ int main(int argc, char** argv) {
 
   auto sRoot = nodeRegistry.getNodeTypeByName("<TLTEST>");
 
-  RealizedNode *rRoot = sRoot->parseStream(myFile, "ROOT");
-  //rRoot->getChild(0)->getValueAsString();
-
+  auto rRoot = sRoot->parseStream(myFile, "ROOT");
   rRoot->dumpTree();
 
 
@@ -93,8 +91,6 @@ test(...)\n\
   int32_t ret = lua_tointeger(nodeRegistry.L, -1);
   printf("Script returned: 0x%x, %d\n", ret, ret);
   lua_pop(nodeRegistry.L, 1);  /* Take the returned value out of the stack */
-
-  delete rRoot;
 
   return 0;
 }
