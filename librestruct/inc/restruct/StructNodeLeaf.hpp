@@ -9,7 +9,8 @@ class StructNodeRegistry;
 class StructNodeLeaf : public StructNode {
 public:
   StructNodeLeaf(StructNodeRegistry* registry_, std::string name_,
-                 LuaScript* toStringScript_, LuaScript* readScript_);
+                 std::shared_ptr<LuaScript> toStringScript_,
+                 std::shared_ptr<LuaScript> readScript_);
 
   virtual unsigned int getNumChildren() {
     return 0;
@@ -21,5 +22,5 @@ public:
               std::shared_ptr<RealizedNode> parent);
 
 private:
-  LuaScript* readScript;
+  std::shared_ptr<LuaScript> readScript;
 };

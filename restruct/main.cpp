@@ -8,23 +8,22 @@
 #include <restruct/restruct.hpp>
 
 StructNode* int__StructConstructor(std::string name, StructNodeRegistry* registry) {
-  LuaScript* toString = new LuaScript(registry,
-                       "return string.format('%d<uint32>', nodeval)");
-
-  LuaScript* read = new LuaScript(registry, "return restruct.readuint32(rs)");
+  auto toString = registry->createScript
+    ("return string.format('%d<uint32>', nodeval)");
+  auto read = registry->createScript("return restruct.readuint32(rs)");
   return new StructNodeLeaf(registry, name, toString, read);
 }
 
 StructNode* rawStr__StructConstructor(std::string name,
                                       StructNodeRegistry* registry) {
-  LuaScript* toString = new LuaScript(registry, "return nodeval .. '<rawStr>'");
-  LuaScript* read = new LuaScript(registry, "return restruct.readString(rs, 3)");
+  auto toString = registry->createScript("return nodeval .. '<rawStr>'");
+  auto read = registry->createScript("return restruct.readString(rs, 3)");
   return new StructNodeLeaf(registry, name, toString, read);
 }
 
 StructNode* lenStr__StructConstructor(std::string name,
                                       StructNodeRegistry* registry) {
-  LuaScript* toString = new LuaScript(registry, "\
+  auto toString = registry->createScript("\
 local children = restruct.getChildrenValues(rs)\n\
 return string.format('(\"%s\"; Len %d)<lenStr>', children.content, children.length)");
   auto ret = new StructNodeGroup(registry, name, toString);
@@ -35,7 +34,7 @@ return string.format('(\"%s\"; Len %d)<lenStr>', children.content, children.leng
 
 StructNode* lenStrList__StructConstructor(std::string name,
                            StructNodeRegistry* registry) {
-  LuaScript* toString = new LuaScript(registry, "return '(1 string)<>'");
+  auto toString = registry->createScript("return '(1 string)<>'");
   auto ret = new StructNodeGroup(registry, name, toString);
   ret->addChild("<lenstr>", "string0");
   ret->addChild("<lenstr>", "string1");
@@ -44,7 +43,7 @@ StructNode* lenStrList__StructConstructor(std::string name,
 
 StructNode* TLTEST__StructConstructor(std::string name,
                            StructNodeRegistry* registry) {
-  LuaScript* toString = new LuaScript(registry, "\
+  auto toString = registry->createScript("\
 local children = restruct.getChildrenValues(rs)\n\
 return string.format('(%d strings)<TLTEST>', children.length)");
   auto ret = new StructNodeGroup(registry, name, toString);

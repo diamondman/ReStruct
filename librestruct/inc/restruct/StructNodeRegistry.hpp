@@ -14,6 +14,8 @@ class StructNodeRegistry {
 public:
   StructNodeRegistry();
 
+  ~StructNodeRegistry();
+
   void registerType(std::string typeName,
                     StructNode* (*constructor)(std::string, StructNodeRegistry*));
 
@@ -22,6 +24,8 @@ public:
   std::shared_ptr<StructNode> removeNodeTypeByName(std::string name);
 
   std::shared_ptr<StructNode> getNodeTypeByName(std::string name);
+
+  std::shared_ptr<LuaScript> createScript(std::string src);
 
   int registerScript(std::string src);
 

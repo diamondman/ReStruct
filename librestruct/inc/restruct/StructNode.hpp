@@ -11,7 +11,7 @@ class StructNodeRegistry;
 class StructNode : public std::enable_shared_from_this<StructNode> {
 public:
   StructNode(StructNodeRegistry* registry_, std::string name_,
-             LuaScript* toStringScript_) :
+             std::shared_ptr<LuaScript> toStringScript_) :
     registry(registry_), name(name_), toStringScript(toStringScript_) {
     //this->registry->addNodeType(this);
     //if(this->parent)
@@ -40,6 +40,6 @@ protected:
   std::string name;
 public:
   StructNodeRegistry* registry;
-  LuaScript* toStringScript;
+  std::shared_ptr<LuaScript> toStringScript;
   //StructNodeGroup* parent;
 };

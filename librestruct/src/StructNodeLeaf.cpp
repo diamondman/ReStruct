@@ -4,7 +4,8 @@
 #include <restruct/StructNodeLeaf.hpp>
 
 StructNodeLeaf::StructNodeLeaf(StructNodeRegistry* registry_, std::string name_,
-                               LuaScript* toStringScript_, LuaScript* readScript_) :
+                               std::shared_ptr<LuaScript> toStringScript_,
+                               std::shared_ptr<LuaScript> readScript_) :
   StructNode(registry_, name_, toStringScript_), readScript(readScript_) {}
 
 std::shared_ptr<RealizedNode>

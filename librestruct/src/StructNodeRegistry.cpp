@@ -53,10 +53,12 @@ static int RealizedNode_readuint32 (lua_State *L) {
   lua_pushinteger(L, res);  /* push result */
   return 1;  /* number of results */
 }
-
+#include <stdlib.h>
 static int RealizedNode_getChildrenStrings (lua_State *L) {
   RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
   luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+
+  char* derp = (char*)malloc(122);
 
   lua_createtable(L, 0, rNode->getNumChildren());
   for(int i = 0; i < rNode->getNumChildren(); i++) {
@@ -122,8 +124,13 @@ StructNodeRegistry::StructNodeRegistry() {
   lua_setglobal(L, "restruct");
 }
 
-void StructNodeRegistry::registerType(std::string typeName,
-                  StructNode* (*constructor)(std::string, StructNodeRegistry*)) {
+StructNodeRegistry::~StructNodeRegistry() {
+  std::cout << "******STRUCTNODEREGISTRY DEALLOCATING " << std::endl;
+  lua_close(this->L);
+}
+
+void StructNodeRegistry::registerType
+(std::string typeName, StructNode*(*constructor)(std::string, StructNodeRegistry*)) {
   this->typeConstructors[typeName] = constructor;
 }
 
@@ -166,6 +173,10 @@ StructNodeRegistry::getNodeTypeByName(std::string name) {
   }
 
   return nullptr;
+}
+
+std::shared_ptr<LuaScript> StructNodeRegistry::createScript(std::string src) {
+  return std::make_shared<LuaScript>(this, src);
 }
 
 int StructNodeRegistry::registerScript(std::string src) {

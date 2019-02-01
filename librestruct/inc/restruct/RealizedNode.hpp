@@ -59,7 +59,7 @@ private:
   std::string nodeName;
 public:
   std::istream& instream;
-  int luaResultID;
+  int luaResultID=0;
 private:
   std::streampos streamBeginOffset;
   std::streampos tmpOffset;

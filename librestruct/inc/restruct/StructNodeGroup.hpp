@@ -12,7 +12,7 @@ class RealizedNode;
 class StructNodeGroup : public StructNode {
 public:
   StructNodeGroup(StructNodeRegistry* registry_, std::string name_,
-                  LuaScript* toStringScript_) :
+                  std::shared_ptr<LuaScript> toStringScript_) :
     StructNode(registry_, name_, toStringScript_) {}
 
   virtual unsigned int getNumChildren() {
