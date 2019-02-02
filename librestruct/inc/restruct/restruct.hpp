@@ -6,5 +6,3 @@
 #include <restruct/StructNode.hpp>
 #include <restruct/StructNodeLeaf.hpp>
 #include <restruct/StructNodeRegistry.hpp>
-
-int restruct_main(int argc, char** argv);

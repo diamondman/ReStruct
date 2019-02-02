@@ -4,7 +4,6 @@ find_package(nlohmann_json 3.2.0 REQUIRED)
 find_package(Lua 5.3 REQUIRED)
 
 add_library(RESTRUCT SHARED
-  src/a.cpp
   src/LuaScript.cpp
   src/RealizedNode.cpp
   src/StructNode.cpp
