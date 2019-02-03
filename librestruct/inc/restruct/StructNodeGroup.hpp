@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -32,10 +33,23 @@ public:
               std::string nodeName,
               std::shared_ptr<RealizedNode> parent=nullptr);
 
+
+
+  void mapOutputToInput(std::string nodeNameFrom,
+                        std::string nodeNameTo,
+                        std::string inputName);
+
+  virtual void pushLuaInputsTable(lua_State *L,
+                                  std::shared_ptr<RealizedNode> realNode,
+                                  RealizedNode* realChild);
+
 private:
   void realizeChildren(std::istream& instream,
                        std::shared_ptr<RealizedNode> currNode);
 
   // typename, nodename
   std::vector<std::pair<std::string, std::string>> childrenNames;
+
+  // nodeNameTo: {inputName: NodeNameFrom}
+  std::map<std::string, std::map<std::string, std::string>> IOMap;
 };

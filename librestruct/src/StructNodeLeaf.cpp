@@ -1,4 +1,6 @@
 #include <iostream>
+#include <lua.h>
+
 #include <restruct/LuaScript.hpp>
 #include <restruct/RealizedNode.hpp>
 #include <restruct/StructNodeLeaf.hpp>
@@ -16,4 +18,11 @@ StructNodeLeaf::parseStream(std::istream& instream,
   this->readScript->pushRealizedNode("rs", node.get());
   this->readScript->call(&node->luaResultID);
   return node;
+}
+
+void StructNodeLeaf::pushLuaInputsTable(lua_State *L,
+                                        std::shared_ptr<RealizedNode> realNode,
+                                        RealizedNode* realChild) {
+  std::cout << "\n\n\nHOW DID IT COME TO THIS\n\n\n" << std::endl;
+  lua_pushnil(L);
 }

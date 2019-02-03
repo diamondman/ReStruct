@@ -8,6 +8,8 @@
 class StructNode;
 
 class RealizedNode : public std::enable_shared_from_this<RealizedNode> {
+  friend class StructNodeGroup;
+
 private:
   RealizedNode(std::shared_ptr<StructNode> structNode_,
                std::shared_ptr<RealizedNode> parent_,

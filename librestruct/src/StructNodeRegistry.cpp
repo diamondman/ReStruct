@@ -94,12 +94,23 @@ static int RealizedNode_getChildrenValues (lua_State *L) {
   return 1;  /* number of results */
 }
 
+static int RealizedNode_getInputs (lua_State *L) {
+  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
+  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+  auto rParent = rNode->getParent();
+  auto sParent = rParent->getStructNode();
+
+  sParent->pushLuaInputsTable(L, rParent, rNode);
+  return 1;
+}
+
 #define luaL_reg      luaL_Reg
 static const struct luaL_reg restructLib [] = {
   {"readString", RealizedNode_readString},
   {"readuint32", RealizedNode_readuint32},
   {"getChildrenStrings", RealizedNode_getChildrenStrings},
   {"getChildrenValues", RealizedNode_getChildrenValues},
+  {"getInputs", RealizedNode_getInputs},
   {NULL, NULL}
 };
 

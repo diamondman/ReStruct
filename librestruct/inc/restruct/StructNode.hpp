@@ -3,10 +3,12 @@
 #include <fstream>
 #include <string>
 #include <memory>
+#include <vector>
 
 class LuaScript;
 class RealizedNode;
 class StructNodeRegistry;
+typedef struct lua_State lus_State;
 
 class StructNode : public std::enable_shared_from_this<StructNode> {
 public:
@@ -36,10 +38,19 @@ public:
     return this->name;
   }
 
+  void addInput(std::string name) {
+    this->inputs.push_back(name);
+  }
+
+  virtual void pushLuaInputsTable(lua_State *L,
+                                  std::shared_ptr<RealizedNode> realNode,
+                                  RealizedNode* realChild)=0;
+
 protected:
   std::string name;
 public:
   StructNodeRegistry* registry;
   std::shared_ptr<LuaScript> toStringScript;
+  std::vector<std::string> inputs;
   //StructNodeGroup* parent;
 };

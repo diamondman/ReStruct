@@ -21,6 +21,10 @@ public:
               std::string nodeName,
               std::shared_ptr<RealizedNode> parent);
 
+  virtual void pushLuaInputsTable(lua_State *L,
+                                  std::shared_ptr<RealizedNode> realNode,
+                                  RealizedNode* realChild);
+
 private:
   std::shared_ptr<LuaScript> readScript;
 };
