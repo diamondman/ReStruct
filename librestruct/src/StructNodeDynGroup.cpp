@@ -13,13 +13,7 @@ StructNodeDynGroup::parseStream(std::istream& instream,
                                 std::string nodeName,
                                 std::shared_ptr<RealizedNode> parent) {
   auto node = StructNode::parseStream(instream, nodeName, parent);
-  std::cout << "CALLING CHILDGENSCRIPT" << std::endl;
-  std::cout << "childgen CALL START! Stack top: " << lua_gettop(this->registry->L)
-            << std::endl;
-  this->childGenScript->pushRealizedNode("rs", node.get());
   this->childGenScript->callz(node.get());
-  std::cout << "childgen CALL END! Stack top: " << lua_gettop(this->registry->L)
-            << std::endl;
   return node;
 }
 

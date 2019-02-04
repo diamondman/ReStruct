@@ -11,5 +11,5 @@ StructNode::parseStream(std::istream& instream,
 }
 
 StructNode::~StructNode() {
-  std::cout << "******StructNode DEALLOCATING: " << this->name << std::endl;
+  std::cerr << "******StructNode DEALLOCATING: " << this->name << std::endl;
 }

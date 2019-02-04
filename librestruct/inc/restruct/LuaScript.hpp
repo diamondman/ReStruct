@@ -10,21 +10,16 @@ public:
   LuaScript(StructNodeRegistry* registry_, std::string src);
   ~LuaScript();
 
-  void pushIntParam(const char* name, int param);
+  void call(RealizedNode* node);
 
-  void pushNumberParam(const char* name, double param);
+  void calls_luares(RealizedNode* node);
 
-  void pushStringParam(const char* name, const void* str, int strlen = -1);
-
-  void pushRealizedNode(const char* name, RealizedNode* node);
-
-  void call(int* resultID);
-
-  void calls_luares(RealizedNode* node, int luaResultID);
-
-  std::string calls(RealizedNode* node, int luaResultID);
+  std::string calls(RealizedNode* node);
 
   void callz(RealizedNode* node);
+
+protected:
+  void pushRealizedNode(RealizedNode* node);
 
 private:
   StructNodeRegistry *registry;

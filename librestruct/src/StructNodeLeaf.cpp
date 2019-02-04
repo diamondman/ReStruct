@@ -15,8 +15,7 @@ StructNodeLeaf::parseStream(std::istream& instream,
                             std::string nodeName,
                             std::shared_ptr<RealizedNode> parent) {
   auto node = StructNode::parseStream(instream, nodeName, parent);
-  this->readScript->pushRealizedNode("rs", node.get());
-  this->readScript->call(&node->luaResultID);
+  this->readScript->call(node.get());
   return node;
 }
 

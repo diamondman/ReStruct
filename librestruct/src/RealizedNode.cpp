@@ -33,13 +33,13 @@ void RealizedNode::finishInit() {
 }
 
 RealizedNode::~RealizedNode() {
-  std::cout << "******RealizedNode DEALLOCATING " << this->nodeName << std::endl;
+  std::cerr << "******RealizedNode DEALLOCATING " << this->nodeName << std::endl;
 }
 
 std::string RealizedNode::getValueAsString() {
   if(!this->structNode->toStringScript)
     return "...";
-  return this->structNode->toStringScript->calls(this, this->luaResultID);
+  return this->structNode->toStringScript->calls(this);
 }
 
 void RealizedNode::dumpTree(int depth) {

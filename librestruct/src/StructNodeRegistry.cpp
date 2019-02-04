@@ -31,9 +31,14 @@ LUALIB_API void restruct_openlibs (lua_State *L) {
   }
 }
 
+static RealizedNode *checkReStructNode (lua_State *L) {
+  RealizedNode *rNode = (RealizedNode *)luaL_checkudata(L, 1, "ReStruct.node");
+  luaL_argcheck(L, rNode != NULL, 1, "`ReStruct.node' expected");
+  return rNode;
+}
+
 static int RealizedNode_readString (lua_State *L) {
-  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
-  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+  RealizedNode *rNode = checkReStructNode(L);
   int strlen = luaL_checkinteger(L, 2);
   luaL_argcheck(L, strlen > 0, 2, "`length' must be > 0");
 
@@ -45,8 +50,7 @@ static int RealizedNode_readString (lua_State *L) {
 }
 
 static int RealizedNode_readuint32 (lua_State *L) {
-  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
-  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+  RealizedNode *rNode = checkReStructNode(L);
 
   uint32_t res;
   rNode->instream.read(reinterpret_cast<char*>(&res), sizeof(res));
@@ -55,8 +59,7 @@ static int RealizedNode_readuint32 (lua_State *L) {
 }
 #include <stdlib.h>
 static int RealizedNode_getChildrenStrings (lua_State *L) {
-  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
-  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+  RealizedNode *rNode = checkReStructNode(L);
 
   char* derp = (char*)malloc(122);
 
@@ -65,8 +68,7 @@ static int RealizedNode_getChildrenStrings (lua_State *L) {
     auto child = rNode->getChild(i);
     lua_pushstring(L, child->getName().c_str());
     if(child->getStructNode()->toStringScript) {
-      child->getStructNode()->toStringScript->calls_luares(child.get(),
-                                                           child->luaResultID);
+      child->getStructNode()->toStringScript->calls_luares(child.get());
     } else {
       lua_pushnil(L);
     }
@@ -76,8 +78,7 @@ static int RealizedNode_getChildrenStrings (lua_State *L) {
 }
 
 static int RealizedNode_getChildrenValues (lua_State *L) {
-  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
-  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+  RealizedNode *rNode = checkReStructNode(L);
 
   lua_createtable(L, 0, rNode->getNumChildren());
   for(int i = 0; i < rNode->getNumChildren(); i++) {
@@ -95,8 +96,7 @@ static int RealizedNode_getChildrenValues (lua_State *L) {
 }
 
 static int RealizedNode_getInputs (lua_State *L) {
-  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
-  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+  RealizedNode *rNode = checkReStructNode(L);
   auto rParent = rNode->getParent();
   auto sParent = rParent->getStructNode();
 
@@ -105,8 +105,7 @@ static int RealizedNode_getInputs (lua_State *L) {
 }
 
 static int RealizedNode_emitChild (lua_State *L) {
-  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
-  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+  RealizedNode *rNode = checkReStructNode(L);
 
   auto sNode = rNode->getStructNode();
   std::cout << "Calling emit on sNode " << sNode->getName() << std::endl;
@@ -120,14 +119,31 @@ static int RealizedNode_emitChild (lua_State *L) {
   return 0;
 }
 
+static int RealizedNode_getValue(lua_State *L) {
+  RealizedNode *rNode = checkReStructNode(L);
+  lua_pushinteger(L, rNode->luaResultID);
+  lua_gettable(L, LUA_REGISTRYINDEX);
+  return 1;
+}
+
 #define luaL_reg      luaL_Reg
 static const struct luaL_reg restructLib [] = {
+  // LEAF NODE READ
   {"readString", RealizedNode_readString},
   {"readuint32", RealizedNode_readuint32},
+
+  // GROUP NODE TOSTRING, maybe ALL TOSTRING (but nil for leaf)
   {"getChildrenStrings", RealizedNode_getChildrenStrings},
   {"getChildrenValues", RealizedNode_getChildrenValues},
+
+  // ALL
   {"getInputs", RealizedNode_getInputs},
+
+  // DYN GROUP CHILD GEN
   {"emitChild", RealizedNode_emitChild},
+
+  // LEAF NODE TOSTRING, maybe ALL TOSTRING (but nil for group)
+  {"getValue", RealizedNode_getValue},
   {NULL, NULL}
 };
 
@@ -147,13 +163,18 @@ StructNodeRegistry::StructNodeRegistry() {
       exit(1);
   }
 
-  lua_newtable(L);
+  luaL_newmetatable(L, "ReStruct.node");
+  lua_pushstring(L, "__index");
+  lua_pushvalue(L, -2);
+  lua_settable(L, -3);
+
   luaL_setfuncs(L, restructLib, 0);
-  lua_setglobal(L, "restruct");
+
+  lua_pop(L, 1); // Clear the metatable from the stack
 }
 
 StructNodeRegistry::~StructNodeRegistry() {
-  std::cout << "******STRUCTNODEREGISTRY DEALLOCATING " << std::endl;
+  std::cerr << "******STRUCTNODEREGISTRY DEALLOCATING " << std::endl;
   lua_close(this->L);
 }
 

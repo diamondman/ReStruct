@@ -38,24 +38,24 @@ void StructNodeGroup::mapOutputToInput(std::string nodeNameFrom,
 void StructNodeGroup::pushLuaInputsTable(lua_State *L,
                                          std::shared_ptr<RealizedNode> realNode,
                                          RealizedNode* realChild) {
-  std::cout << "  Pushing lua inputs table" << std::endl;
+  std::cerr << "  Pushing lua inputs table" << std::endl;
   lua_createtable(L, 0, this->inputs.size());
 
   if(this->IOMap.find(realChild->getName()) == this->IOMap.end()) {
-    std::cout << "  Node does not have values exported to it!" << std::endl;
+    std::cerr << "  Node does not have values exported to it!" << std::endl;
     return;
   }
 
-  std::cout << "  Node has values exported to it!" << std::endl;
+  std::cerr << "  Node has values exported to it!" << std::endl;
   auto inputMap = this->IOMap[realChild->getName()];
 
   for(auto input_it : realChild->getStructNode()->inputs) {
     std::string srcNodeName = inputMap[input_it];
-    std::cout << "  Exported from '" << srcNodeName << "' to '"
+    std::cerr << "  Exported from '" << srcNodeName << "' to '"
               << realChild->getName() << "." << input_it << "'" << std::endl;
     for(auto srcchild : realNode->children) {
       if(srcchild->getName() == srcNodeName) {
-        std::cout << "  NAME MATCH FOUND" << std::endl;
+        std::cerr << "  NAME MATCH FOUND" << std::endl;
         lua_pushstring(L, input_it.c_str());
 
         lua_pushinteger(L, srcchild->luaResultID);
