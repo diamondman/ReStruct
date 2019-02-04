@@ -47,6 +47,7 @@ private:
   void realizeChildren(std::istream& instream,
                        std::shared_ptr<RealizedNode> currNode);
 
+protected:
   // typename, nodename
   std::vector<std::pair<std::string, std::string>> childrenNames;
 

@@ -9,6 +9,7 @@ add_library(RESTRUCT SHARED
   src/StructNode.cpp
   src/StructNodeLeaf.cpp
   src/StructNodeGroup.cpp
+  src/StructNodeDynGroup.cpp
   src/StructNodeRegistry.cpp
   )
 

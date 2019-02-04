@@ -37,10 +37,20 @@ return string.format('(\"%s\"; Len %d)<lenStr>', children.content, children.leng
 
 StructNode* lenStrList__StructConstructor
 (std::string name, StructNodeRegistry* registry) {
-  auto toString = registry->createScript("return '(1 string)<>'");
-  auto node = new StructNodeGroup(registry, name, toString);
-  node->addChild("<lenstr>", "string0");
-  node->addChild("<lenstr>", "string1");
+  auto toString = registry->createScript("\
+local inputs = restruct.getInputs(rs)\n\
+return string.format('(%d strings)<lenStr[]>', inputs.count)");
+  auto childGen = registry->createScript("\
+local inputs = restruct.getInputs(rs)\n\
+local myrs = rs\n\
+print(string.format('EMITING %d ENTRIES\\b', inputs.count))\n\
+for i=1,inputs.count,1 do\n\
+   print(string.format('    EMIT %d!\\n', i))\n\
+   restruct.emitChild(myrs)\n\
+end");
+  auto node = new StructNodeDynGroup(registry, name, toString, childGen);
+  node->addInput("count");
+  node->addChild("<lenstr>", "str");
   return node;
 }
 
@@ -48,10 +58,11 @@ StructNode* TLTEST__StructConstructor
 (std::string name, StructNodeRegistry* registry) {
   auto toString = registry->createScript("\
 local children = restruct.getChildrenValues(rs)\n\
-return string.format('(%d strings)<TLTEST>', children.length)");
+return string.format('(%d strings)<TLTEST>', children.count)");
   auto node = new StructNodeGroup(registry, name, toString);
-  node->addChild("<int>", "length");
+  node->addChild("<int>", "count");
   node->addChild("<lenStrList>", "strings");
+  node->mapOutputToInput("count", "strings", "count");
   return node;
 }
 
@@ -61,10 +72,10 @@ int main(int argc, char** argv) {
   nodeRegistry.registerType("<rawstr>", &rawStr__StructConstructor);
   nodeRegistry.registerType("<lenstr>", &lenStr__StructConstructor);
   nodeRegistry.registerType("<lenStrList>", &lenStrList__StructConstructor);
-  nodeRegistry.registerType("<TLTEST>", &TLTEST__StructConstructor);
+  nodeRegistry.registerType("TLTEST", &TLTEST__StructConstructor);
 
   std::ifstream myFile("test.bin", std::ios::in | std::ios::binary);
-  auto sRoot = nodeRegistry.getNodeTypeByName("<TLTEST>");
+  auto sRoot = nodeRegistry.getNodeTypeByName("TLTEST");
   auto rRoot = sRoot->parseStream(myFile, "ROOT");
   rRoot->dumpTree();
 

@@ -104,6 +104,22 @@ static int RealizedNode_getInputs (lua_State *L) {
   return 1;
 }
 
+static int RealizedNode_emitChild (lua_State *L) {
+  RealizedNode *rNode = (RealizedNode *)lua_touserdata(L, 1);
+  luaL_argcheck(L, rNode != NULL, 1, "`RealizedNode' expected");
+
+  auto sNode = rNode->getStructNode();
+  std::cout << "Calling emit on sNode " << sNode->getName() << std::endl;
+  std::shared_ptr<StructNodeDynGroup> sDynNode =
+    std::dynamic_pointer_cast<StructNodeDynGroup>(sNode);
+  if(!sDynNode) {
+    std::cout << "Could not cast StructNode to StructNodeDynGroup" << std::endl;
+    return 0;
+  }
+  sDynNode->emitChild(rNode->instream, rNode->shared_from_this());
+  return 0;
+}
+
 #define luaL_reg      luaL_Reg
 static const struct luaL_reg restructLib [] = {
   {"readString", RealizedNode_readString},
@@ -111,6 +127,7 @@ static const struct luaL_reg restructLib [] = {
   {"getChildrenStrings", RealizedNode_getChildrenStrings},
   {"getChildrenValues", RealizedNode_getChildrenValues},
   {"getInputs", RealizedNode_getInputs},
+  {"emitChild", RealizedNode_emitChild},
   {NULL, NULL}
 };
 

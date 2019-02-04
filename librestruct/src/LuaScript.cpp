@@ -97,3 +97,15 @@ std::string LuaScript::calls(RealizedNode* node, int luaResultID) {
   lua_pop(this->registry->L, 1);  /* Take the returned value out of the stack */
   return ret;
 }
+
+void LuaScript::callz(RealizedNode* node) {
+  this->pushRealizedNode("rs", node);
+
+  lua_pushinteger(this->registry->L, this->scriptID);  /* push address */
+  lua_gettable(this->registry->L, LUA_REGISTRYINDEX); // ToS = chunk to run
+  if (lua_pcall(this->registry->L, 0, 0, 0)) {
+      fprintf(stderr, "Failed to run script: %s\n",
+              lua_tostring(this->registry->L, -1));
+      exit(1);
+  }
+}

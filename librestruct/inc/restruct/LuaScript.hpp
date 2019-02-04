@@ -24,6 +24,8 @@ public:
 
   std::string calls(RealizedNode* node, int luaResultID);
 
+  void callz(RealizedNode* node);
+
 private:
   StructNodeRegistry *registry;
   int scriptID;
