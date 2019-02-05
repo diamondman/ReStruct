@@ -20,12 +20,6 @@ public:
     return this->childrenNames.size();
   }
 
-  //virtual std::shared_ptr<StructNode> getChild(unsigned int index) {
-  //  if(index >= this->childrenNames.size()) return nullptr;
-  //  std::string name = this->childrenNames[index];
-  //  return nullptr;//.lock();
-  //}
-
   void addChild(std::string nodeTypeName, std::string nodeName);
 
   virtual std::shared_ptr<RealizedNode>

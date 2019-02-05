@@ -6,8 +6,6 @@
 #include <restruct/StructNodeGroup.hpp>
 #include <restruct/RealizedNode.hpp>
 
-//class RealizedNode;
-
 void StructNodeGroup::addChild(std::string nodeTypeName, std::string nodeName) {
   this->childrenNames.push_back(std::pair<std::string, std::string>(nodeTypeName, nodeName));
 }

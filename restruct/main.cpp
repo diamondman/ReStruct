@@ -5,17 +5,19 @@
 
 StructNode* int__StructConstructor
 (std::string name, StructNodeRegistry* registry) {
-  auto toString = registry->createScript
-    ("return string.format('%d<uint32>', rs:getValue())");
-  auto read = registry->createScript("return rs:readuint32()");
+  auto toString = registry->createScript("local rs = ...\n\
+return string.format('%d<uint32>', rs:getValue())");
+  auto read = registry->createScript("\
+local rs = ...\nreturn rs:readuint32()");
   auto node = new StructNodeLeaf(registry, name, toString, read);
   return node;
 }
 
 StructNode* rawStr__StructConstructor
 (std::string name, StructNodeRegistry* registry) {
-  auto toString = registry->createScript("return rs:getValue() .. '<rawStr>'");
-  auto read = registry->createScript("\
+  auto toString = registry->createScript("local rs = ...\n\
+return rs:getValue() .. '<rawStr>'");
+  auto read = registry->createScript("local rs = ...\n\
 local inputs = rs:getInputs()\n\
 return rs:readString(inputs.length)");
   auto node = new StructNodeLeaf(registry, name, toString, read);
@@ -25,7 +27,7 @@ return rs:readString(inputs.length)");
 
 StructNode* lenStr__StructConstructor
 (std::string name, StructNodeRegistry* registry) {
-  auto toString = registry->createScript("\
+  auto toString = registry->createScript("local rs = ...\n\
 local children = rs:getChildrenValues()\n\
 return string.format('(\"%s\"; Len %d)<lenStr>', children.content, children.length)");
   auto node = new StructNodeGroup(registry, name, toString);
@@ -37,16 +39,15 @@ return string.format('(\"%s\"; Len %d)<lenStr>', children.content, children.leng
 
 StructNode* lenStrList__StructConstructor
 (std::string name, StructNodeRegistry* registry) {
-  auto toString = registry->createScript("\
+  auto toString = registry->createScript("local rs = ...\n\
 local inputs = rs:getInputs()\n\
 return string.format('(%d strings)<lenStr[]>', inputs.count)");
-auto childGen = registry->createScript("\
-local myrs = rs\n\
-local inputs = myrs:getInputs()\n\
+auto childGen = registry->createScript("local rs = ...\n\
+local inputs = rs:getInputs()\n\
 print(string.format('EMITING %d ENTRIES\\b', inputs.count))\n\
 for i=1,inputs.count,1 do\n\
    print(string.format('    EMIT %d!\\n', i))\n\
-   myrs:emitChild()\n\
+   rs:emitChild()\n\
 end");
   auto node = new StructNodeDynGroup(registry, name, toString, childGen);
   node->addInput("count");
@@ -56,7 +57,7 @@ end");
 
 StructNode* TLTEST__StructConstructor
 (std::string name, StructNodeRegistry* registry) {
-  auto toString = registry->createScript("\
+  auto toString = registry->createScript("local rs = ...\n\
 local children = rs:getChildrenValues()\n\
 return string.format('(%d strings)<TLTEST>', children.count)");
   auto node = new StructNodeGroup(registry, name, toString);

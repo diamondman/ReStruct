@@ -27,15 +27,14 @@ void LuaScript::pushRealizedNode(RealizedNode* node) {
 
 void LuaScript::call(RealizedNode* node) {
   std::cout << "CALL! Stack top: " << lua_gettop(this->registry->L) << std::endl;
-  this->pushRealizedNode(node);
-  lua_setglobal(this->registry->L, "rs");
 
   if(node->luaResultID)
     lua_pushinteger(this->registry->L, node->luaResultID); /* push ID for later */
 
   lua_pushinteger(this->registry->L, this->scriptID);  /* push address */
   lua_gettable(this->registry->L, LUA_REGISTRYINDEX); // ToS = chunk to run
-  if (lua_pcall(this->registry->L, 0, 1, 0)) {
+  this->pushRealizedNode(node);
+  if (lua_pcall(this->registry->L, 1, 1, 0)) {
       fprintf(stderr, "Failed to run script: %s\n",
               lua_tostring(this->registry->L, -1));
       exit(1);
@@ -47,20 +46,16 @@ void LuaScript::call(RealizedNode* node) {
   } else {
     node->luaResultID = luaL_ref(this->registry->L, LUA_REGISTRYINDEX);
   }
-  //std::cout << "stored res in " << *resultID << std::endl;
-  //lua_pop(this->registry->L, 1);  /* Take the returned value out of the stack */
 }
 
 #include <iostream>
 #include <stdio.h>
 
 void LuaScript::calls_luares(RealizedNode* node) {
-  this->pushRealizedNode(node);
-  lua_setglobal(this->registry->L, "rs");
-
   lua_pushinteger(this->registry->L, this->scriptID);  /* push address */
   lua_gettable(this->registry->L, LUA_REGISTRYINDEX); // ToS = chunk to run
-  if (lua_pcall(this->registry->L, 0, 1, 0)) {
+  this->pushRealizedNode(node);
+  if (lua_pcall(this->registry->L, 1, 1, 0)) {
       fprintf(stderr, "Failed to run script: %s\n",
               lua_tostring(this->registry->L, -1));
       exit(1);
@@ -76,12 +71,10 @@ std::string LuaScript::calls(RealizedNode* node) {
 }
 
 void LuaScript::callz(RealizedNode* node) {
-  this->pushRealizedNode(node);
-  lua_setglobal(this->registry->L, "rs");
-
   lua_pushinteger(this->registry->L, this->scriptID);  /* push address */
   lua_gettable(this->registry->L, LUA_REGISTRYINDEX); // ToS = chunk to run
-  if (lua_pcall(this->registry->L, 0, 0, 0)) {
+  this->pushRealizedNode(node);
+  if (lua_pcall(this->registry->L, 1, 0, 0)) {
       fprintf(stderr, "Failed to run script: %s\n",
               lua_tostring(this->registry->L, -1));
       exit(1);

@@ -15,19 +15,10 @@ public:
   StructNode(StructNodeRegistry* registry_, std::string name_,
              std::shared_ptr<LuaScript> toStringScript_) :
     registry(registry_), name(name_), toStringScript(toStringScript_) {
-    //this->registry->addNodeType(this);
-    //if(this->parent)
-    //  this->parent->addChild(this);
   }
   virtual ~StructNode();
 
-  //StructNodeGroup* getParent() {
-  //  return this->parent;
-  //}
-
   virtual unsigned int getNumChildren()=0;
-
-  //virtual std::shared_ptr<StructNode> getChild(unsigned int index)=0;
 
   virtual std::shared_ptr<RealizedNode>
   parseStream(std::istream& instream,
@@ -52,5 +43,4 @@ public:
   StructNodeRegistry* registry;
   std::shared_ptr<LuaScript> toStringScript;
   std::vector<std::string> inputs;
-  //StructNodeGroup* parent;
 };
