@@ -1,3 +1,4 @@
+#include <cstring>
 #include <iostream>
 #include <lua.h>
 #include <lualib.h>
@@ -6,9 +7,7 @@
 #include <restruct/restruct.hpp>
 
 
-
 static const luaL_Reg loadedlibs[] = {
-  {"_G", luaopen_base},
   //{LUA_LOADLIBNAME, luaopen_package},
   //{LUA_COLIBNAME, luaopen_coroutine},
   {LUA_TABLIBNAME, luaopen_table},
@@ -18,16 +17,50 @@ static const luaL_Reg loadedlibs[] = {
   {LUA_MATHLIBNAME, luaopen_math},
   {LUA_UTF8LIBNAME, luaopen_utf8},
   //{LUA_DBLIBNAME, luaopen_debug},
+  {"_G", luaopen_base}, // HAS TO BE THE LAST ONE MADE CONSTANT
   {NULL, NULL}
 };
 
 
+static int SYS_newindex (lua_State *L) {
+  return luaL_error(L, "Attempt to modify read-only table");
+}
+
 LUALIB_API void restruct_openlibs (lua_State *L) {
-  const luaL_Reg *lib;
-  /* "require" functions from 'loadedlibs' and set results to global table */
-  for (lib = loadedlibs; lib->func; lib++) {
+  // Load built in libraries
+  for (const luaL_Reg *lib = loadedlibs; lib->func; lib++) {
     luaL_requiref(L, lib->name, lib->func, 1);
     lua_pop(L, 1);  /* remove lib */
+  }
+
+  // Making global tables immutable
+  for (const luaL_Reg *lib = loadedlibs; lib->func; lib++) {
+    //function readonlytable(table)
+    //   return setmetatable({}, {
+    //     __index = table,
+    //     __newindex = function(table, key, value)
+    //                    error("Attempt to modify read-only table")
+    //                  end,
+    //     __metatable = false
+    //   });
+    //end
+    lua_createtable(L, 0, 0);
+    lua_createtable(L, 3, 0);
+
+    lua_pushstring(L, "__index");
+    lua_getglobal(L, lib->name);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "__newindex");
+    lua_pushcfunction(L, SYS_newindex);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "__metatable");
+    lua_pushboolean(L, false);
+    lua_settable(L, -3);
+
+    lua_setmetatable(L, -2);
+    lua_setglobal(L, lib->name);
   }
 }
 
@@ -238,4 +271,26 @@ int StructNodeRegistry::registerScript(std::string src) {
 
 void StructNodeRegistry::unRegisterScript(int id) {
   luaL_unref(L, LUA_REGISTRYINDEX, id);
+}
+
+void StructNodeRegistry::stackDump () {
+  int i=lua_gettop(L);
+  printf(" ----------------  Stack Dump ----------------\n" );
+  while(  i   ) {
+    int t = lua_type(L, i);
+    switch (t) {
+    case LUA_TSTRING:
+      printf("%d:`%s'\n", i, lua_tostring(L, i));
+      break;
+    case LUA_TBOOLEAN:
+      printf("%d: %s\n",i,lua_toboolean(L, i) ? "true" : "false");
+      break;
+    case LUA_TNUMBER:
+      printf("%d: %g\n",  i, lua_tonumber(L, i));
+      break;
+    default: printf("%d: %s\n", i, lua_typename(L, t)); break;
+    }
+    i--;
+  }
+  printf("--------------- Stack Dump Finished ---------------\n\n" );
 }

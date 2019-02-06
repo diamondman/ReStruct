@@ -7,8 +7,8 @@ StructNode* int__StructConstructor
 (std::string name, StructNodeRegistry* registry) {
   auto toString = registry->createScript("local rs = ...\n\
 return string.format('%d<uint32>', rs:getValue())");
-  auto read = registry->createScript("\
-local rs = ...\nreturn rs:readuint32()");
+  auto read = registry->createScript("local rs = ...\n\
+return rs:readuint32()");
   auto node = new StructNodeLeaf(registry, name, toString, read);
   return node;
 }

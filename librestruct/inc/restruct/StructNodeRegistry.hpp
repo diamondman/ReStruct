@@ -31,6 +31,8 @@ public:
 
   void unRegisterScript(int id);
 
+  void stackDump();
+
 private:
   std::map<std::string, StructNode* (*)(std::string, StructNodeRegistry*)> typeConstructors;
   std::map<std::string, std::weak_ptr<StructNode>> nodeLookup;
