@@ -1,11 +1,17 @@
 #include <cstring>
+#include <string>
 #include <iostream>
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
 
-#include <restruct/restruct.hpp>
-
+#include "LuaScriptChildGen.hpp"
+#include "LuaScriptRead.hpp"
+#include "LuaScriptToString.hpp"
+#include <restruct/RealizedNode.hpp>
+#include <restruct/StructNode.hpp>
+#include <restruct/StructNodeDynGroup.hpp>
+#include <restruct/StructNodeRegistry.hpp>
 
 static const luaL_Reg loadedlibs[] = {
   //{LUA_LOADLIBNAME, luaopen_package},
@@ -34,7 +40,6 @@ LUALIB_API void restruct_openlibs (lua_State *L) {
   }
 
   // Remove unsafe operations from the global scope.
-
   #define LUA_INIT_SCRIPT R"~~~(
 local newG = {utf8=utf8, string=string, math=math, xpcall=xpcall, error=error, type=type, _VERSION=_VERSION, pcall=pcall, next=next, _G=_G, assert=assert, pairs=pairs, tonumber=tonumber, ipairs=ipairs, select=select, tostring=tostring, table=table}
 for k,v in pairs(newG) do
@@ -105,7 +110,7 @@ static int RealizedNode_readuint32 (lua_State *L) {
   lua_pushinteger(L, res);  /* push result */
   return 1;  /* number of results */
 }
-#include <stdlib.h>
+
 static int RealizedNode_getChildrenStrings (lua_State *L) {
   RealizedNode *rNode = checkReStructNode(L, 1);
 
@@ -116,7 +121,7 @@ static int RealizedNode_getChildrenStrings (lua_State *L) {
     auto child = rNode->getChild(i);
     lua_pushstring(L, child->getName().c_str());
     if(child->getStructNode()->toStringScript) {
-      child->getStructNode()->toStringScript->calls_luares(child.get());
+      (*child->getStructNode()->toStringScript)(child.get());
     } else {
       lua_pushnil(L);
     }
@@ -269,8 +274,19 @@ StructNodeRegistry::getNodeTypeByName(std::string name) {
   return nullptr;
 }
 
-std::shared_ptr<LuaScript> StructNodeRegistry::createScript(std::string src) {
-  return std::make_shared<LuaScript>(this, src);
+std::shared_ptr<LuaScriptChildGen>
+StructNodeRegistry::createChildGenScript(std::string src) {
+  return std::make_shared<LuaScriptChildGen>(this, src);
+}
+
+std::shared_ptr<LuaScriptRead>
+StructNodeRegistry::createReadScript(std::string src) {
+  return std::make_shared<LuaScriptRead>(this, src);
+}
+
+std::shared_ptr<LuaScriptToString>
+StructNodeRegistry::createToStringScript(std::string src) {
+  return std::make_shared<LuaScriptToString>(this, src);
 }
 
 int StructNodeRegistry::registerScript(std::string src) {

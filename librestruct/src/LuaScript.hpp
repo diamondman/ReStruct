@@ -10,18 +10,10 @@ public:
   LuaScript(StructNodeRegistry* registry_, std::string src);
   ~LuaScript();
 
-  void call(RealizedNode* node);
-
-  void calls_luares(RealizedNode* node);
-
-  std::string calls(RealizedNode* node);
-
-  void callz(RealizedNode* node);
-
 protected:
   void pushRealizedNode(RealizedNode* node);
+  void pcall(RealizedNode* node, int nresults=1);
 
-private:
   StructNodeRegistry *registry;
   int scriptID;
 };

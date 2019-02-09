@@ -1,10 +1,9 @@
-#include <iostream>
 #include <string>
 #include <fstream>
-#include <lua.h>
 
 #include <restruct/StructNodeDynGroup.hpp>
-#include <restruct/LuaScript.hpp>
+#include "LuaScriptChildGen.hpp"
+#include <restruct/StructNodeRegistry.hpp>
 
 class RealizedNode;
 
@@ -13,7 +12,7 @@ StructNodeDynGroup::parseStream(std::istream& instream,
                                 std::string nodeName,
                                 std::shared_ptr<RealizedNode> parent) {
   auto node = StructNode::parseStream(instream, nodeName, parent);
-  this->childGenScript->callz(node.get());
+  (*this->childGenScript)(node.get());
   return node;
 }
 

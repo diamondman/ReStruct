@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <restruct/LuaScript.hpp>
+#include "LuaScriptToString.hpp"
 #include <restruct/RealizedNode.hpp>
 #include <restruct/StructNode.hpp>
 #include <restruct/StructNodeRegistry.hpp>
@@ -39,7 +39,7 @@ RealizedNode::~RealizedNode() {
 std::string RealizedNode::getValueAsString() {
   if(!this->structNode->toStringScript)
     return "...";
-  return this->structNode->toStringScript->calls(this);
+  return (*this->structNode->toStringScript)(this);
 }
 
 void RealizedNode::dumpTree(int depth) {

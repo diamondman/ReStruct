@@ -5,6 +5,9 @@ find_package(Lua 5.3 REQUIRED)
 
 add_library(RESTRUCT SHARED
   src/LuaScript.cpp
+  src/LuaScriptChildGen.cpp
+  src/LuaScriptRead.cpp
+  src/LuaScriptToString.cpp
   src/RealizedNode.cpp
   src/StructNode.cpp
   src/StructNodeLeaf.cpp

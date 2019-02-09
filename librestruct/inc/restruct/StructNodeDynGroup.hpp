@@ -6,15 +6,16 @@
 #include <vector>
 
 #include <restruct/StructNodeGroup.hpp>
-#include <restruct/StructNodeRegistry.hpp>
 
 class RealizedNode;
+class LuaScriptChildGen;
+class StructNodeRegistry;
 
 class StructNodeDynGroup : public StructNodeGroup {
 public:
   StructNodeDynGroup(StructNodeRegistry* registry_, std::string name_,
-                     std::shared_ptr<LuaScript> toStringScript_,
-                     std::shared_ptr<LuaScript> childGenScript_=nullptr) :
+                     std::shared_ptr<LuaScriptToString> toStringScript_,
+                     std::shared_ptr<LuaScriptChildGen> childGenScript_=nullptr) :
     StructNodeGroup(registry_, name_, toStringScript_),
     childGenScript(childGenScript_) {}
 
@@ -27,5 +28,5 @@ public:
                  std::shared_ptr<RealizedNode> currNode);
 
 private:
-  std::shared_ptr<LuaScript> childGenScript;
+  std::shared_ptr<LuaScriptChildGen> childGenScript;
 };

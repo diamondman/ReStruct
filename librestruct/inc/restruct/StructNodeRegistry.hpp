@@ -4,7 +4,9 @@
 #include <memory>
 #include <string>
 
-class LuaScript;
+class LuaScriptChildGen;
+class LuaScriptRead;
+class LuaScriptToString;
 class StructNode;
 typedef struct lua_State lus_State;
 
@@ -25,7 +27,11 @@ public:
 
   std::shared_ptr<StructNode> getNodeTypeByName(std::string name);
 
-  std::shared_ptr<LuaScript> createScript(std::string src);
+  std::shared_ptr<LuaScriptChildGen> createChildGenScript(std::string src);
+
+  std::shared_ptr<LuaScriptRead> createReadScript(std::string src);
+
+  std::shared_ptr<LuaScriptToString> createToStringScript(std::string src);
 
   int registerScript(std::string src);
 

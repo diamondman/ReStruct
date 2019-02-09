@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-class LuaScript;
+class LuaScriptToString;
 class RealizedNode;
 class StructNodeRegistry;
 typedef struct lua_State lus_State;
@@ -13,7 +13,7 @@ typedef struct lua_State lus_State;
 class StructNode : public std::enable_shared_from_this<StructNode> {
 public:
   StructNode(StructNodeRegistry* registry_, std::string name_,
-             std::shared_ptr<LuaScript> toStringScript_) :
+             std::shared_ptr<LuaScriptToString> toStringScript_) :
     registry(registry_), name(name_), toStringScript(toStringScript_) {
   }
   virtual ~StructNode();
@@ -41,6 +41,6 @@ protected:
   std::string name;
 public:
   StructNodeRegistry* registry;
-  std::shared_ptr<LuaScript> toStringScript;
+  std::shared_ptr<LuaScriptToString> toStringScript;
   std::vector<std::string> inputs;
 };

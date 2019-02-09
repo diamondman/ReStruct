@@ -4,13 +4,16 @@
 
 #include <restruct/StructNode.hpp>
 
+class RealizedNode;
 class StructNodeRegistry;
+class LuaScriptToString;
+class LuaScriptRead;
 
 class StructNodeLeaf : public StructNode {
 public:
   StructNodeLeaf(StructNodeRegistry* registry_, std::string name_,
-                 std::shared_ptr<LuaScript> toStringScript_,
-                 std::shared_ptr<LuaScript> readScript_);
+                 std::shared_ptr<LuaScriptToString> toStringScript_,
+                 std::shared_ptr<LuaScriptRead> readScript_);
 
   virtual unsigned int getNumChildren() {
     return 0;
@@ -26,5 +29,5 @@ public:
                                   RealizedNode* realChild);
 
 private:
-  std::shared_ptr<LuaScript> readScript;
+  std::shared_ptr<LuaScriptRead> readScript;
 };

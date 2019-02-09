@@ -6,14 +6,14 @@
 #include <vector>
 
 #include <restruct/StructNode.hpp>
-#include <restruct/StructNodeRegistry.hpp>
 
 class RealizedNode;
+class StructNodeRegistry;
 
 class StructNodeGroup : public StructNode {
 public:
   StructNodeGroup(StructNodeRegistry* registry_, std::string name_,
-                  std::shared_ptr<LuaScript> toStringScript_) :
+                  std::shared_ptr<LuaScriptToString> toStringScript_) :
     StructNode(registry_, name_, toStringScript_) {}
 
   virtual unsigned int getNumChildren() {
