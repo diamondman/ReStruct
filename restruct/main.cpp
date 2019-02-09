@@ -44,9 +44,9 @@ local inputs = rs:getInputs()\n\
 return string.format('(%d strings)<lenStr[]>', inputs.count)");
 auto childGen = registry->createScript("local rs = ...\n\
 local inputs = rs:getInputs()\n\
-print(string.format('EMITING %d ENTRIES\\b', inputs.count))\n\
+rs:log(string.format('EMITING %d ENTRIES\\b', inputs.count))\n\
 for i=1,inputs.count,1 do\n\
-   print(string.format('    EMIT %d!\\n', i))\n\
+   rs:log(string.format('    EMIT %d!\\n', i))\n    \
    rs:emitChild()\n\
 end");
   auto node = new StructNodeDynGroup(registry, name, toString, childGen);
