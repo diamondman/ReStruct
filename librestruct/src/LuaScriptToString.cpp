@@ -5,9 +5,14 @@
 
 #include "LuaScriptToString.hpp"
 #include <restruct/StructNodeRegistry.hpp>
+#include <restruct/RealizedNode.hpp>
 
 void LuaScriptToString::call_luares(RealizedNode* node) {
-  this->pcall(node, 1);
+  std::cerr << "  Running Script " << node->getPath() << ".TOSTRING" << std::endl;
+  this->printTOS();
+  this->pcall(node, "ReStruct.nodeToStringContext", 1);
+  this->printTOS();
+  std::cerr << "  Script END " << node->getPath() << ".TOSTRING" << std::endl;
 }
 
 std::string LuaScriptToString::operator()(RealizedNode* node) {

@@ -37,6 +37,8 @@ public:
 
   void unRegisterScript(int id);
 
+  void basicStackDump(const char* suffix = "\n");
+
   void stackDump();
 
 private:

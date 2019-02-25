@@ -38,6 +38,8 @@ public:
     return this->nodeName;
   }
 
+  std::string getPath();
+
   void addChild(std::shared_ptr<RealizedNode> node) {
     this->children.push_back(node);
   }

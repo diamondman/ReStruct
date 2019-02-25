@@ -8,12 +8,13 @@
 #include <restruct/StructNodeRegistry.hpp>
 
 void LuaScriptRead::operator()(RealizedNode* node) {
-  std::cout << "CALL! Stack top: " << lua_gettop(this->registry->L) << std::endl;
+  std::cerr << "  Running Script " << node->getPath() << ".READ" << std::endl;
+  this->printTOS();
 
   if(node->luaResultID)
     lua_pushinteger(this->registry->L, node->luaResultID); /* push ID for later */
 
-  this->pcall(node, 1);
+  this->pcall(node, "ReStruct.leafNodeReadStreamContext", 1);
 
   if(node->luaResultID) {
     //lua_pushinteger called earlier for table key
@@ -21,4 +22,7 @@ void LuaScriptRead::operator()(RealizedNode* node) {
   } else {
     node->luaResultID = luaL_ref(this->registry->L, LUA_REGISTRYINDEX);
   }
+
+  this->printTOS();
+  std::cerr << "  Script END " << node->getPath() << ".READ" << std::endl;
 }

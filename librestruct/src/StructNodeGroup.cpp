@@ -45,16 +45,12 @@ void StructNodeGroup::pushLuaInputsTable(lua_State *L,
     return;
   }
 
-  std::cerr << "  Node has values exported to it!" << std::endl;
   auto inputMap = this->IOMap[realChild->getName()];
 
   for(auto input_it : realChild->getStructNode()->inputs) {
     std::string srcNodeName = inputMap[input_it];
-    std::cerr << "  Exported from '" << srcNodeName << "' to '"
-              << realChild->getName() << "." << input_it << "'" << std::endl;
     for(auto srcchild : realNode->children) {
       if(srcchild->getName() == srcNodeName) {
-        std::cerr << "  NAME MATCH FOUND" << std::endl;
         lua_pushstring(L, input_it.c_str());
 
         lua_pushinteger(L, srcchild->luaResultID);

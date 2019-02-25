@@ -36,6 +36,12 @@ RealizedNode::~RealizedNode() {
   std::cerr << "******RealizedNode DEALLOCATING " << this->nodeName << std::endl;
 }
 
+std::string RealizedNode::getPath() {
+  if(auto p = this->parent.lock())
+    return p->getPath() + "." + this->nodeName;
+  return this->nodeName;
+}
+
 std::string RealizedNode::getValueAsString() {
   if(!this->structNode->toStringScript)
     return "...";
